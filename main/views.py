@@ -141,7 +141,7 @@ class ContactPageListView(generic.ListView):
         context = {
             'navbar': 'contact',
             'categories': categories,
-            'sub_categories': sub_categories,
+            # 'sub_categories': sub_categories,
             'get_it_touch': get_it_touch,
             'store_one': store_one,
             'store_two': store_two,
@@ -176,7 +176,7 @@ class ShopPageListView(generic.ListView):
     def get(self, request):
 
         categories = Category.objects.all()
-        sub_categories = SubCategory.objects.all()
+        # sub_categories = SubCategory.objects.all()
         ourshop = OurShop.objects.get().product.all()
         for product in ourshop:
             product.discount_price = round(product.price * (1 - product.discount / 100), 2)
@@ -247,9 +247,6 @@ class ProductDetailView(generic.DetailView):
         context.update({'form': form})
 
         return render(request, self.template_name, context)
-
-
-
 
 
 
