@@ -201,6 +201,10 @@ class ReviewFor(models.Model):
     def __str__(self) -> str:
         return self.review.__str__()
     
+    class Meta:
+        verbose_name = 'ReviewFor'
+        verbose_name_plural = 'ReviewFor'
+    
 class YouMayAlsoLike(models.Model):
     product = models.ManyToManyField(Product)
 

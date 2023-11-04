@@ -194,18 +194,42 @@ class ContactPageListView(generic.ListView):
 class ShopPageListView(generic.ListView):
     template_name = 'shop.html'
 
-    def get(self, request):
+    @staticmethod
+    def __extract_all_data():
 
         categories = Category.objects.all()[1:]
         sub_categories_dresses = SubCategory.objects.all()[:3]
         sub_categories = SubCategory.objects.all()
         ourshop = OurShop.objects.get().product.all()
         latest = Product.objects.order_by('-date_time')[:8]
+        products = Product.objects.order_by('price')
+        zero_houndred = []
+        houndred_twohoundred = []
+        twohoundred_threehoundred = []
+        threehoundred_fourhoundred = []
+        fourhoundred_fivehoundred = []
+
+        for product in products:
+            if 0 < product.price < 101:
+                zero_houndred += [product]
+            elif 101 < product.price < 201:
+                houndred_twohoundred += [product]
+            elif 201 < product.price < 301:
+                twohoundred_threehoundred += [product]
+            elif 301 < product.price < 401:
+                threehoundred_fourhoundred += [product]
+            elif 401 < product.price < 501:
+                fourhoundred_fivehoundred += [product]
+
+        all_prices = [zero_houndred, houndred_twohoundred, twohoundred_threehoundred, threehoundred_fourhoundred, fourhoundred_fivehoundred]
+
+
         for product in ourshop:
             product.discount_price = round(product.price * (1 - product.discount / 100), 2)
 
         for product in latest:
             product.discount_price = round(product.price * (1 - product.discount / 100), 2)
+
 
         context = {
             'navbar': 'shop',
@@ -214,7 +238,14 @@ class ShopPageListView(generic.ListView):
             'sub_categories_dresses': sub_categories_dresses,
             'sub_categories': sub_categories,
             'latest': latest,
+            'all_prices': all_prices,
         }
+
+        return context
+
+    def get(self, request):
+
+        context = self.__extract_all_data()
 
         return render(request, self.template_name, context)
     
@@ -222,16 +253,8 @@ class ShopPageListView(generic.ListView):
 class ProductDetailView(generic.DetailView):
     template_name = 'detail.html'
 
-    # @staticmethod
-    # def __extract_all_data():
-
-        
-
-    #     return context
-
-    
-
-    def get(self, request, id):
+    @staticmethod
+    def __extract_all_data(id):
 
         categories = Category.objects.all()[1:]
         sub_categories_dresses = SubCategory.objects.all()[:3]
@@ -265,29 +288,20 @@ class ProductDetailView(generic.DetailView):
             'you_may_also_like_active': you_may_also_like_active,
             'you_may_also_like': you_may_also_like,
         }
+        
+        return context
+
+    
+
+    def get(self, request, id):
+
+        context = self.__extract_all_data(id)
 
         return render(request, self.template_name, context)
     
     def post(self, request, id):
 
-        categories = Category.objects.all()[1:]
-        sub_categories_dresses = SubCategory.objects.all()[:3]
-        sub_categories = SubCategory.objects.all()
-        additional_information_text = AdditionalInformation.objects.first()
-        additional_information_char_1 = AdditionalInformation.objects.get().char.all()[:4]
-        additional_information_char_2 = AdditionalInformation.objects.get().char.all()[4:]
-        reviews = ReviewFor.objects.get().review.all().order_by('-date_time')[:4]
-        you_may_also_like_active = YouMayAlsoLike.objects.get().product.all()[:4]
-        you_may_also_like = YouMayAlsoLike.objects.get().product.all()[4:]
-
-        product = Product.objects.get(pk=id)
-        product.discount_price = round(product.price * (1 - product.discount / 100), 2)
-
-        for prod in you_may_also_like_active:
-            prod.discount_price = round(prod.price * (1 - prod.discount / 100), 2)
-
-        for prodd in you_may_also_like:
-            prodd.discount_price = round(prodd.price * (1 - prodd.discount / 100), 2)
+        context = self.__extract_all_data(id)
 
         form = LeaveReviewForm(request.POST)
 
@@ -296,24 +310,7 @@ class ProductDetailView(generic.DetailView):
         else:
             form = LeaveReviewForm()
 
-        context = {
-            'navbar': 'detail',
-            'form': form,
-            'product': product,
-            'categories': categories,
-            'sub_categories': sub_categories,
-            'sub_categories_dresses': sub_categories_dresses,
-            'additional_information_text': additional_information_text,
-            'additional_information_char_1': additional_information_char_1,
-            'additional_information_char_2': additional_information_char_2,
-            'reviews': reviews,
-            'you_may_also_like_active': you_may_also_like_active,
-            'you_may_also_like': you_may_also_like,
-        }
-
-        
-
-
+        context.update({'form':form})
 
         return render(request, self.template_name, context)
 

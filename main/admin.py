@@ -10,7 +10,7 @@ from .models import (
     AdditionalInformation, LeaveReview, 
     ReviewFor, YouMayAlsoLike, 
     GetInTouch, StoreOne, 
-    StoreTwo, 
+    StoreTwo
 )
 
 admin.site.register(Category)
