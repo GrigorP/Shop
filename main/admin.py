@@ -10,7 +10,8 @@ from .models import (
     AdditionalInformation, LeaveReview, 
     ReviewFor, YouMayAlsoLike, 
     GetInTouch, StoreOne, 
-    StoreTwo
+    StoreTwo, Size,
+    Color
 )
 
 admin.site.register(Category)
@@ -34,4 +35,6 @@ admin.site.register(YouMayAlsoLike)
 admin.site.register(GetInTouch)
 admin.site.register(StoreOne)
 admin.site.register(StoreTwo)
+admin.site.register(Size)
+admin.site.register(Color)
 

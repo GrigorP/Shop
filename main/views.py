@@ -202,28 +202,34 @@ class ShopPageListView(generic.ListView):
         sub_categories = SubCategory.objects.all()
         ourshop = OurShop.objects.get().product.all()
         latest = Product.objects.order_by('-date_time')[:8]
-        products = Product.objects.order_by('price')
-        zero_houndred = []
-        houndred_twohoundred = []
-        twohoundred_threehoundred = []
-        threehoundred_fourhoundred = []
-        fourhoundred_fivehoundred = []
+        products = Product.objects.all()
+        prices = Product.objects.filter(price__range=(100, 200)).filter(color__in = [1 , 2]).filter(size__in = [])
+        
+            
+        # zero_houndred = []
+        # houndred_twohoundred = []
+        # twohoundred_threehoundred = []
+        # threehoundred_fourhoundred = []
+        # fourhoundred_fivehoundred = []
 
-        for product in products:
-            if 0 < product.price < 101:
-                zero_houndred += [product]
-            elif 101 < product.price < 201:
-                houndred_twohoundred += [product]
-            elif 201 < product.price < 301:
-                twohoundred_threehoundred += [product]
-            elif 301 < product.price < 401:
-                threehoundred_fourhoundred += [product]
-            elif 401 < product.price < 501:
-                fourhoundred_fivehoundred += [product]
+        # for product in products:
+        #     if 0 < product.price < 101:
+        #         zero_houndred += [product]
+        #     elif 101 < product.price < 201:
+        #         houndred_twohoundred += [product]
+        #     elif 201 < product.price < 301:
+        #         twohoundred_threehoundred += [product]
+        #     elif 301 < product.price < 401:
+        #         threehoundred_fourhoundred += [product]
+        #     elif 401 < product.price < 501:
+        #         fourhoundred_fivehoundred += [product]
 
-        all_prices = [zero_houndred, houndred_twohoundred, twohoundred_threehoundred, threehoundred_fourhoundred, fourhoundred_fivehoundred]
+        # all_prices = [zero_houndred, houndred_twohoundred, twohoundred_threehoundred, threehoundred_fourhoundred, fourhoundred_fivehoundred]
 
-
+        # for i in all_prices[1]:
+        #     print(i.price)
+        
+        
         for product in ourshop:
             product.discount_price = round(product.price * (1 - product.discount / 100), 2)
 
@@ -238,7 +244,8 @@ class ShopPageListView(generic.ListView):
             'sub_categories_dresses': sub_categories_dresses,
             'sub_categories': sub_categories,
             'latest': latest,
-            'all_prices': all_prices,
+            # 'all_prices': all_prices,
+            'prices': prices,
         }
 
         return context

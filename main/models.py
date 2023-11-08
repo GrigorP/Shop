@@ -32,8 +32,25 @@ class Collection(models.Model):
     def __str__(self) -> str:
         return self.name
     
+    
+class Size(models.Model):
+    
+    size = models.CharField('Size' , max_length=3)
+    
+    def __str__(self) -> str:
+        return self.size
+    
+class Color(models.Model):
+    
+    color = models.CharField('Color' , max_length=15)
+    
+    def __str__(self) -> str:
+        return self.color
 
 class Product(models.Model):
+    
+    size = models.ManyToManyField(Size)
+    color = models.ManyToManyField(Color)
     category = models.ForeignKey(SubCategory, on_delete=models.CASCADE , null=True)
     name = models.CharField('Product Name', max_length=254)
     img = models.ImageField('IMG', upload_to='media')
