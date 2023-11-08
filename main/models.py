@@ -79,16 +79,6 @@ class StayUpdated(models.Model):
         verbose_name = 'StayUpdated'
         verbose_name_plural = 'StayUpdated'
     
-class OurShop(models.Model):
-
-    product = models.ManyToManyField(Product)
-
-    def __str__(self) -> str:
-        return self.product.__str__()
-    
-    class Meta:
-        verbose_name = 'OurShop'
-        verbose_name_plural = 'OurShop'
 
 
 class BillingAddress(models.Model):

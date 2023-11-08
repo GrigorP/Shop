@@ -200,52 +200,19 @@ class ShopPageListView(generic.ListView):
         categories = Category.objects.all()[1:]
         sub_categories_dresses = SubCategory.objects.all()[:3]
         sub_categories = SubCategory.objects.all()
-        ourshop = OurShop.objects.get().product.all()
-        latest = Product.objects.order_by('-date_time')[:8]
-        products = Product.objects.all()
-        prices = Product.objects.filter(price__range=(100, 200)).filter(color__in = [1 , 2]).filter(size__in = [])
+        products = Product.objects.all()        
         
-            
-        # zero_houndred = []
-        # houndred_twohoundred = []
-        # twohoundred_threehoundred = []
-        # threehoundred_fourhoundred = []
-        # fourhoundred_fivehoundred = []
-
-        # for product in products:
-        #     if 0 < product.price < 101:
-        #         zero_houndred += [product]
-        #     elif 101 < product.price < 201:
-        #         houndred_twohoundred += [product]
-        #     elif 201 < product.price < 301:
-        #         twohoundred_threehoundred += [product]
-        #     elif 301 < product.price < 401:
-        #         threehoundred_fourhoundred += [product]
-        #     elif 401 < product.price < 501:
-        #         fourhoundred_fivehoundred += [product]
-
-        # all_prices = [zero_houndred, houndred_twohoundred, twohoundred_threehoundred, threehoundred_fourhoundred, fourhoundred_fivehoundred]
-
-        # for i in all_prices[1]:
-        #     print(i.price)
-        
-        
-        for product in ourshop:
+        for product in products:
             product.discount_price = round(product.price * (1 - product.discount / 100), 2)
 
-        for product in latest:
-            product.discount_price = round(product.price * (1 - product.discount / 100), 2)
 
 
         context = {
             'navbar': 'shop',
-            'ourshop': ourshop,
             'categories': categories,
             'sub_categories_dresses': sub_categories_dresses,
             'sub_categories': sub_categories,
-            'latest': latest,
-            # 'all_prices': all_prices,
-            'prices': prices,
+            'products': products,
         }
 
         return context
@@ -255,6 +222,66 @@ class ShopPageListView(generic.ListView):
         context = self.__extract_all_data()
 
         return render(request, self.template_name, context)
+
+    def post(self, request):
+
+        context = self.__extract_all_data()
+
+        post = request.POST
+        price = post.get('price')
+        color = post.get('color')
+        size = post.get('size')
+        products = Product.objects.all()
+        # if price == 'all':
+        #     products = Product.objects.all()
+        # if price == '0-100':
+        #     products = Product.objects.filter(price__range=(0, 101))
+        # if price == '100-200':
+        #     products = Product.objects.filter(price__range=(101, 201))
+        # if price == '200-300':
+        #     products = Product.objects.filter(price__range=(201, 301))
+        # if price == '300-400':
+        #     products = Product.objects.filter(price__range=(301, 401))
+        # if price == '400-500':
+        #     products = Product.objects.filter(price__range=(401, 501))
+
+        # if color == 'all':
+        #     products = Product.objects.all()
+        # if color == 'White':
+        #     products = Product.objects.filter(color__in=[1])
+        # if color == 'Black':
+        #     products = Product.objects.filter(color__in=[2])
+        # if color == 'Red':
+        #     products = Product.objects.filter(color__in=[3])
+        # if color == 'Green':
+        #     products = Product.objects.filter(color__in=[4])
+        # if color == 'Blue':
+        #     products = Product.objects.filter(color__in=[5])
+
+        if size == 'all':
+            products = Product.objects.all()
+        if size == 'X':
+            products = Product.objects.filter(size__in=[1])
+        if size == 'S':
+            products = Product.objects.filter(size__in=[2])
+        if size == 'M':
+            products = Product.objects.filter(size__in=[3])
+        if size == 'L':
+            products = Product.objects.filter(size__in=[4])
+        if size == 'XL':
+            products = Product.objects.filter(size__in=[5])
+
+
+        for product in products:
+            product.discount_price = round(product.price * (1 - product.discount / 100), 2)
+
+        context.update({'products': products})
+
+        
+
+        return render(request, self.template_name, context)
+    
+
     
 
 class ProductDetailView(generic.DetailView):
@@ -330,17 +357,13 @@ class ShopPageLatestListView(generic.ListView):
         categories = Category.objects.all()[1:]
         sub_categories_dresses = SubCategory.objects.all()[:3]
         sub_categories = SubCategory.objects.all()
-        ourshop = OurShop.objects.get().product.all()
         latest = Product.objects.order_by('-date_time')[:8]
-        for product in ourshop:
-            product.discount_price = round(product.price * (1 - product.discount / 100), 2)
 
         for product in latest:
             product.discount_price = round(product.price * (1 - product.discount / 100), 2)
 
         context = {
             'navbar': 'shop',
-            'ourshop': ourshop,
             'categories': categories,
             'sub_categories_dresses': sub_categories_dresses,
             'sub_categories': sub_categories,

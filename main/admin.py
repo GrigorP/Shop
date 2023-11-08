@@ -3,7 +3,7 @@ from .models import (
     Category, SubCategory,
     Collection, Product,
     TrandyProduct, StayUpdated,
-    OurShop, BillingAddress, 
+    BillingAddress, Color,
     ShippingAddress, ContactUs, 
     GeneralSlider, VendorSlider,
     NewsLetter, AddChar, 
@@ -11,7 +11,6 @@ from .models import (
     ReviewFor, YouMayAlsoLike, 
     GetInTouch, StoreOne, 
     StoreTwo, Size,
-    Color
 )
 
 admin.site.register(Category)
@@ -20,7 +19,6 @@ admin.site.register(Collection)
 admin.site.register(Product)
 admin.site.register(TrandyProduct)
 admin.site.register(StayUpdated)
-admin.site.register(OurShop)
 admin.site.register(BillingAddress)
 admin.site.register(ShippingAddress)
 admin.site.register(ContactUs)
