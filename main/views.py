@@ -4,6 +4,12 @@ from django.shortcuts import render
 from django.views import generic
 from .models import *
 from .forms import *
+from django.views.generic import ListView
+from django.shortcuts import render, redirect
+from .forms import NewUserForm
+from django.contrib import messages
+from django.contrib.auth import login, authenticate, logout
+from django.contrib.auth.forms import AuthenticationForm , UserCreationForm
 
 class HomePageListView(generic.ListView):
     template_name = 'index.html'
@@ -232,106 +238,119 @@ class ShopPageListView(generic.ListView):
         color = post.get('color')
         size = post.get('size')
         products = Product.objects.all()
-        if price or color or size:
-            if price:
-                lower_bound , upper_bound = tuple(map(int, price.split('-')))
-                if color:
-                    colors = ['White', 'Black', 'Red', 'Green', 'Blue']
-                    if size:
-                        sizes = ['XS', 'S', 'M', 'L', 'XL']
-                        if size == 'all':
-                            products = Product.objects.filter(price__range=(lower_bound, upper_bound + 1) , color__in=[colors.index(color) + 1])
-                        else:
-                            products = Product.objects.filter(price__range=(lower_bound, upper_bound + 1) , color__in=[colors.index(color) + 1] , size__in=[sizes.index(size) + 1])
-                    else:
-                        if color == 'all':
-                            products = Product.objects.filter(price__range=(lower_bound, upper_bound + 1))
-                        else:
-                            products = Product.objects.filter(price__range=(lower_bound, upper_bound + 1) , color__in=[colors.index(color) + 1])
-                elif size:
-                    sizes = ['XS', 'S', 'M', 'L', 'XL']
-                    if color: 
-                        colors = ['White', 'Black', 'Red', 'Green', 'Blue']
-                        if color == 'all':
-                            products = Product.objects.filter(price__range=(lower_bound , upper_bound + 1))
-                        else:
-                            products = Product.objects.filter(price__range=(lower_bound, upper_bound + 1) , color__in=[colors.index(color) + 1] , size__in=[sizes.index(size) + 1])
-                    else:
-                        if size == 'all':
-                            products = Product.objects.filter(price__range=(lower_bound, upper_bound + 1))
-                        else:
-                            products = Product.objects.filter(price__range=(lower_bound, upper_bound + 1) , size__in=[sizes.index(size) + 1])
-                else:
-                    if price == 'all':
-                        products = Product.objects.all()
-                    else:
-                        products = Product.objects.filter(price__range=(lower_bound, upper_bound + 1))
-            if color:
-                colors = ['White', 'Black', 'Red', 'Green', 'Blue']
-                if price:
-                    lower_bound , upper_bound = tuple(map(int, price.split('-')))
-                    if size:
-                        sizes = ['XS', 'S', 'M', 'L', 'XL']
-                        if size == 'all':
-                            products = Product.objects.filter(price__range=(lower_bound, upper_bound + 1) , color__in=[colors.index(color) + 1])
-                        else:
-                            products = Product.objects.filter(price__range=(lower_bound, upper_bound + 1) , color__in=[colors.index(color) + 1] , size__in=[sizes.index(size) + 1])
-                    else:
-                        if price == 'all':
-                            products = Product.objects.filter(color__in=[colors.index(color) + 1])
-                        else:
-                            products = Product.objects.filter(price__range=(lower_bound, upper_bound + 1) , color__in=[colors.index(color) + 1])
-                elif size:
-                    sizes = ['XS', 'S', 'M', 'L', 'XL']
-                    if price: 
-                        lower_bound , upper_bound = tuple(map(int, price.split('-')))
-                        if price == 'all':
-                            products = Product.objects.filter(color__in=[colors.index(color) + 1] , size__in=[sizes.index(size) + 1])
-                        else:
-                            products = Product.objects.filter(price__range=(lower_bound, upper_bound + 1) , color__in=[colors.index(color) + 1] , size__in=[sizes.index(size) + 1])
-                    else:
-                        if size == 'all':
-                            products = Product.objects.filter(color__in=[colors.index(color) + 1])
-                        else:
-                            products = Product.objects.filter(color__in=[colors.index(color) + 1] , size__in=[sizes.index(size) + 1])
-                else:
-                    if color == 'all':
-                        products = Product.objects.all()
-                    else:
-                        products = Product.objects.filter(color__in=[colors.index(color) + 1])
-            if size:
-                sizes = ['XS', 'S', 'M', 'L', 'XL']
-                if price:
-                    lower_bound , upper_bound = tuple(map(int, price.split('-')))
-                    if color:
-                        colors = ['White', 'Black', 'Red', 'Green', 'Blue']
-                        if color == 'all':
-                            products = Product.objects.filter(price__range=(lower_bound, upper_bound + 1) , size__in=[sizes.index(size) + 1])
-                        else:
-                            products = Product.objects.filter(price__range=(lower_bound, upper_bound + 1) , color__in=[colors.index(color) + 1] , size__in=[sizes.index(size) + 1])
-                    else:
-                        if price == 'all':
-                            products = Product.objects.filter(color__in=[colors.index(color) + 1])
-                        else:
-                            products = Product.objects.filter(price__range=(lower_bound, upper_bound + 1) , color__in=[colors.index(color) + 1])
-                elif color:
-                    colors = ['White', 'Black', 'Red', 'Green', 'Blue']
-                    if price: 
-                        lower_bound , upper_bound = tuple(map(int, price.split('-')))
-                        if price == 'all':
-                            products = Product.objects.filter(color__in=[colors.index(color) + 1] , size__in=[sizes.index(size) + 1])
-                        else:
-                            products = Product.objects.filter(price__range=(lower_bound, upper_bound + 1) , color__in=[colors.index(color) + 1] , size__in=[sizes.index(size) + 1])
-                    else:
-                        if color == 'all':
-                            products = Product.objects.filter(size__in=[sizes.index(size) + 1])
-                        else:
-                            products = Product.objects.filter(color__in=[colors.index(color) + 1] , size__in=[sizes.index(size) + 1])
-                else:
-                    if size == 'all':
-                        products = Product.objects.all()
-                    else:
-                        products = Product.objects.filter(size__in=[sizes.index(size) + 1])
+        sizes = ['XS', 'S', 'M', 'L', 'XL']
+        colors = ['White', 'Black', 'Red', 'Green', 'Blue']
+        lower_bound , upper_bound = tuple(map(int, price.split('-')))
+            
+
+
+        if price and size and color != 'all':
+            products = Product.objects.filter(price__range=(lower_bound, upper_bound + 1) , color__in=[colors.index(color) + 1] , size__in=[sizes.index(size) + 1])
+
+
+
+
+
+        # if price or color or size:
+        #     if price:
+        #         lower_bound , upper_bound = tuple(map(int, price.split('-')))
+        #         if color:
+        #             colors = ['White', 'Black', 'Red', 'Green', 'Blue']
+        #             if size:
+        #                 sizes = ['XS', 'S', 'M', 'L', 'XL']
+        #                 if size == 'all':
+        #                     products = Product.objects.filter(price__range=(lower_bound, upper_bound + 1) , color__in=[colors.index(color) + 1])
+        #                 else:
+        #                     products = Product.objects.filter(price__range=(lower_bound, upper_bound + 1) , color__in=[colors.index(color) + 1] , size__in=[sizes.index(size) + 1])
+        #             else:
+        #                 if color == 'all':
+        #                     products = Product.objects.filter(price__range=(lower_bound, upper_bound + 1))
+        #                 else:
+        #                     products = Product.objects.filter(price__range=(lower_bound, upper_bound + 1) , color__in=[colors.index(color) + 1])
+        #         elif size:
+        #             sizes = ['XS', 'S', 'M', 'L', 'XL']
+        #             if color: 
+        #                 colors = ['White', 'Black', 'Red', 'Green', 'Blue']
+        #                 if color == 'all':
+        #                     products = Product.objects.filter(price__range=(lower_bound , upper_bound + 1))
+        #                 else:
+        #                     products = Product.objects.filter(price__range=(lower_bound, upper_bound + 1) , color__in=[colors.index(color) + 1] , size__in=[sizes.index(size) + 1])
+        #             else:
+        #                 if size == 'all':
+        #                     products = Product.objects.filter(price__range=(lower_bound, upper_bound + 1))
+        #                 else:
+        #                     products = Product.objects.filter(price__range=(lower_bound, upper_bound + 1) , size__in=[sizes.index(size) + 1])
+        #         else:
+        #             if price == 'all':
+        #                 products = Product.objects.all()
+        #             else:
+        #                 products = Product.objects.filter(price__range=(lower_bound, upper_bound + 1))
+        #     if color:
+        #         colors = ['White', 'Black', 'Red', 'Green', 'Blue']
+        #         if price:
+        #             lower_bound , upper_bound = tuple(map(int, price.split('-')))
+        #             if size:
+        #                 sizes = ['XS', 'S', 'M', 'L', 'XL']
+        #                 if size == 'all':
+        #                     products = Product.objects.filter(price__range=(lower_bound, upper_bound + 1) , color__in=[colors.index(color) + 1])
+        #                 else:
+        #                     products = Product.objects.filter(price__range=(lower_bound, upper_bound + 1) , color__in=[colors.index(color) + 1] , size__in=[sizes.index(size) + 1])
+        #             else:
+        #                 if price == 'all':
+        #                     products = Product.objects.filter(color__in=[colors.index(color) + 1])
+        #                 else:
+        #                     products = Product.objects.filter(price__range=(lower_bound, upper_bound + 1) , color__in=[colors.index(color) + 1])
+        #         elif size:
+        #             sizes = ['XS', 'S', 'M', 'L', 'XL']
+        #             if price: 
+        #                 lower_bound , upper_bound = tuple(map(int, price.split('-')))
+        #                 if price == 'all':
+        #                     products = Product.objects.filter(color__in=[colors.index(color) + 1] , size__in=[sizes.index(size) + 1])
+        #                 else:
+        #                     products = Product.objects.filter(price__range=(lower_bound, upper_bound + 1) , color__in=[colors.index(color) + 1] , size__in=[sizes.index(size) + 1])
+        #             else:
+        #                 if size == 'all':
+        #                     products = Product.objects.filter(color__in=[colors.index(color) + 1])
+        #                 else:
+        #                     products = Product.objects.filter(color__in=[colors.index(color) + 1] , size__in=[sizes.index(size) + 1])
+        #         else:
+        #             if color == 'all':
+        #                 products = Product.objects.all()
+        #             else:
+        #                 products = Product.objects.filter(color__in=[colors.index(color) + 1])
+        #     if size:
+        #         sizes = ['XS', 'S', 'M', 'L', 'XL']
+        #         if price:
+        #             lower_bound , upper_bound = tuple(map(int, price.split('-')))
+        #             if color:
+        #                 colors = ['White', 'Black', 'Red', 'Green', 'Blue']
+        #                 if color == 'all':
+        #                     products = Product.objects.filter(price__range=(lower_bound, upper_bound + 1) , size__in=[sizes.index(size) + 1])
+        #                 else:
+        #                     products = Product.objects.filter(price__range=(lower_bound, upper_bound + 1) , color__in=[colors.index(color) + 1] , size__in=[sizes.index(size) + 1])
+        #             else:
+        #                 if price == 'all':
+        #                     products = Product.objects.filter(color__in=[colors.index(color) + 1])
+        #                 else:
+        #                     products = Product.objects.filter(price__range=(lower_bound, upper_bound + 1) , color__in=[colors.index(color) + 1])
+        #         elif color:
+        #             colors = ['White', 'Black', 'Red', 'Green', 'Blue']
+        #             if price: 
+        #                 lower_bound , upper_bound = tuple(map(int, price.split('-')))
+        #                 if price == 'all':
+        #                     products = Product.objects.filter(color__in=[colors.index(color) + 1] , size__in=[sizes.index(size) + 1])
+        #                 else:
+        #                     products = Product.objects.filter(price__range=(lower_bound, upper_bound + 1) , color__in=[colors.index(color) + 1] , size__in=[sizes.index(size) + 1])
+        #             else:
+        #                 if color == 'all':
+        #                     products = Product.objects.filter(size__in=[sizes.index(size) + 1])
+        #                 else:
+        #                     products = Product.objects.filter(color__in=[colors.index(color) + 1] , size__in=[sizes.index(size) + 1])
+        #         else:
+        #             if size == 'all':
+        #                 products = Product.objects.all()
+        #             else:
+        #                 products = Product.objects.filter(size__in=[sizes.index(size) + 1])
             
 
         for product in products:
@@ -513,3 +532,38 @@ class ShopPageLatestListView(generic.ListView):
 
 
 
+def register_request(request):
+	if request.method == "POST":
+		form = NewUserForm(request.POST)
+		if form.is_valid():
+			user = form.save()
+			login(request, user)
+			messages.success(request, "Registration successful." )
+			return redirect("home")
+		messages.error(request, "Unsuccessful registration. Invalid information.")
+	form = NewUserForm()
+	return render(request=request, template_name="register.html", context={"register_form":form})
+
+
+def login_request(request):
+	if request.method == "POST":
+		form = AuthenticationForm(request, data=request.POST)
+		if form.is_valid():
+			username = form.cleaned_data.get('username')
+			password = form.cleaned_data.get('password')
+			user = authenticate(username=username, password=password)
+			if user is not None:
+				login(request, user)
+				messages.info(request, f"You are now logged in as {username}.")
+				return redirect("home")
+			else:
+				messages.error(request,"Invalid username or password.")
+		else:
+			messages.error(request,"Invalid username or password.")
+	form = AuthenticationForm()
+	return render(request=request, template_name="login.html", context={"login_form":form})
+
+def logout_request(request):
+	logout(request)
+	messages.info(request, "You have successfully logged out.") 
+	return redirect("home")
