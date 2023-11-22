@@ -21,7 +21,7 @@
 <body>
     <form method="POST">
         {% csrf_token %}
-        {{ login_form|crispy }}
+        {{ login_form | crispy }}
         <button class="btn btn-primary" type="submit">Login</button>
     </form>
 </body>

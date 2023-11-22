@@ -246,7 +246,12 @@ class StoreTwo(models.Model):
     
 
 
+class Search(models.Model):
 
+    search_text = models.TextField()
+
+    def __str__(self) -> str:
+        return 'Search Text'
 
 
 

@@ -1,12 +1,12 @@
 from typing import Any
 from django.http import HttpRequest, HttpResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.views import generic
 from .models import *
 from .forms import *
 from django.views.generic import ListView
 from django.shortcuts import render, redirect
-from .forms import NewUserForm
+from .forms import NewUserForm , SearchForm
 from django.contrib import messages
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.forms import AuthenticationForm , UserCreationForm
@@ -206,11 +206,7 @@ class ShopPageListView(generic.ListView):
         categories = Category.objects.all()[1:]
         sub_categories_dresses = SubCategory.objects.all()[:3]
         sub_categories = SubCategory.objects.all()
-        products = Product.objects.all()        
         
-        for product in products:
-            product.discount_price = round(product.price * (1 - product.discount / 100), 2)
-
 
 
         context = {
@@ -218,150 +214,39 @@ class ShopPageListView(generic.ListView):
             'categories': categories,
             'sub_categories_dresses': sub_categories_dresses,
             'sub_categories': sub_categories,
-            'products': products,
         }
 
         return context
 
     def get(self, request):
+        text = request.GET.get('query', '')
+        price = request.GET.get('price')
+        color = request.GET.get('color')
+        size = request.GET.get('size')
 
-        context = self.__extract_all_data()
+        sizes = ['all' , 'XS', 'S', 'M', 'L', 'XL']
+        colors = ['all'  , 'White', 'Black', 'Red', 'Green', 'Blue']
+        
+        if price or color or size or text:
+            products = Product.objects.filter()
 
-        return render(request, self.template_name, context)
-
-    def post(self, request):
-
-        context = self.__extract_all_data()
-
-        post = request.POST
-        price = post.get('price')
-        color = post.get('color')
-        size = post.get('size')
-        products = Product.objects.all()
-        sizes = ['XS', 'S', 'M', 'L', 'XL']
-        colors = ['White', 'Black', 'Red', 'Green', 'Blue']
-        lower_bound , upper_bound = tuple(map(int, price.split('-')))
-            
-
-
-        if price and size and color != 'all':
-            products = Product.objects.filter(price__range=(lower_bound, upper_bound + 1) , color__in=[colors.index(color) + 1] , size__in=[sizes.index(size) + 1])
-
-
-
-
-
-        # if price or color or size:
-        #     if price:
-        #         lower_bound , upper_bound = tuple(map(int, price.split('-')))
-        #         if color:
-        #             colors = ['White', 'Black', 'Red', 'Green', 'Blue']
-        #             if size:
-        #                 sizes = ['XS', 'S', 'M', 'L', 'XL']
-        #                 if size == 'all':
-        #                     products = Product.objects.filter(price__range=(lower_bound, upper_bound + 1) , color__in=[colors.index(color) + 1])
-        #                 else:
-        #                     products = Product.objects.filter(price__range=(lower_bound, upper_bound + 1) , color__in=[colors.index(color) + 1] , size__in=[sizes.index(size) + 1])
-        #             else:
-        #                 if color == 'all':
-        #                     products = Product.objects.filter(price__range=(lower_bound, upper_bound + 1))
-        #                 else:
-        #                     products = Product.objects.filter(price__range=(lower_bound, upper_bound + 1) , color__in=[colors.index(color) + 1])
-        #         elif size:
-        #             sizes = ['XS', 'S', 'M', 'L', 'XL']
-        #             if color: 
-        #                 colors = ['White', 'Black', 'Red', 'Green', 'Blue']
-        #                 if color == 'all':
-        #                     products = Product.objects.filter(price__range=(lower_bound , upper_bound + 1))
-        #                 else:
-        #                     products = Product.objects.filter(price__range=(lower_bound, upper_bound + 1) , color__in=[colors.index(color) + 1] , size__in=[sizes.index(size) + 1])
-        #             else:
-        #                 if size == 'all':
-        #                     products = Product.objects.filter(price__range=(lower_bound, upper_bound + 1))
-        #                 else:
-        #                     products = Product.objects.filter(price__range=(lower_bound, upper_bound + 1) , size__in=[sizes.index(size) + 1])
-        #         else:
-        #             if price == 'all':
-        #                 products = Product.objects.all()
-        #             else:
-        #                 products = Product.objects.filter(price__range=(lower_bound, upper_bound + 1))
-        #     if color:
-        #         colors = ['White', 'Black', 'Red', 'Green', 'Blue']
-        #         if price:
-        #             lower_bound , upper_bound = tuple(map(int, price.split('-')))
-        #             if size:
-        #                 sizes = ['XS', 'S', 'M', 'L', 'XL']
-        #                 if size == 'all':
-        #                     products = Product.objects.filter(price__range=(lower_bound, upper_bound + 1) , color__in=[colors.index(color) + 1])
-        #                 else:
-        #                     products = Product.objects.filter(price__range=(lower_bound, upper_bound + 1) , color__in=[colors.index(color) + 1] , size__in=[sizes.index(size) + 1])
-        #             else:
-        #                 if price == 'all':
-        #                     products = Product.objects.filter(color__in=[colors.index(color) + 1])
-        #                 else:
-        #                     products = Product.objects.filter(price__range=(lower_bound, upper_bound + 1) , color__in=[colors.index(color) + 1])
-        #         elif size:
-        #             sizes = ['XS', 'S', 'M', 'L', 'XL']
-        #             if price: 
-        #                 lower_bound , upper_bound = tuple(map(int, price.split('-')))
-        #                 if price == 'all':
-        #                     products = Product.objects.filter(color__in=[colors.index(color) + 1] , size__in=[sizes.index(size) + 1])
-        #                 else:
-        #                     products = Product.objects.filter(price__range=(lower_bound, upper_bound + 1) , color__in=[colors.index(color) + 1] , size__in=[sizes.index(size) + 1])
-        #             else:
-        #                 if size == 'all':
-        #                     products = Product.objects.filter(color__in=[colors.index(color) + 1])
-        #                 else:
-        #                     products = Product.objects.filter(color__in=[colors.index(color) + 1] , size__in=[sizes.index(size) + 1])
-        #         else:
-        #             if color == 'all':
-        #                 products = Product.objects.all()
-        #             else:
-        #                 products = Product.objects.filter(color__in=[colors.index(color) + 1])
-        #     if size:
-        #         sizes = ['XS', 'S', 'M', 'L', 'XL']
-        #         if price:
-        #             lower_bound , upper_bound = tuple(map(int, price.split('-')))
-        #             if color:
-        #                 colors = ['White', 'Black', 'Red', 'Green', 'Blue']
-        #                 if color == 'all':
-        #                     products = Product.objects.filter(price__range=(lower_bound, upper_bound + 1) , size__in=[sizes.index(size) + 1])
-        #                 else:
-        #                     products = Product.objects.filter(price__range=(lower_bound, upper_bound + 1) , color__in=[colors.index(color) + 1] , size__in=[sizes.index(size) + 1])
-        #             else:
-        #                 if price == 'all':
-        #                     products = Product.objects.filter(color__in=[colors.index(color) + 1])
-        #                 else:
-        #                     products = Product.objects.filter(price__range=(lower_bound, upper_bound + 1) , color__in=[colors.index(color) + 1])
-        #         elif color:
-        #             colors = ['White', 'Black', 'Red', 'Green', 'Blue']
-        #             if price: 
-        #                 lower_bound , upper_bound = tuple(map(int, price.split('-')))
-        #                 if price == 'all':
-        #                     products = Product.objects.filter(color__in=[colors.index(color) + 1] , size__in=[sizes.index(size) + 1])
-        #                 else:
-        #                     products = Product.objects.filter(price__range=(lower_bound, upper_bound + 1) , color__in=[colors.index(color) + 1] , size__in=[sizes.index(size) + 1])
-        #             else:
-        #                 if color == 'all':
-        #                     products = Product.objects.filter(size__in=[sizes.index(size) + 1])
-        #                 else:
-        #                     products = Product.objects.filter(color__in=[colors.index(color) + 1] , size__in=[sizes.index(size) + 1])
-        #         else:
-        #             if size == 'all':
-        #                 products = Product.objects.all()
-        #             else:
-        #                 products = Product.objects.filter(size__in=[sizes.index(size) + 1])
-            
+            if price != 'all' and price != None:
+                lower_bound , upper_bound = tuple(map(int, price.split('-')))
+                products = products.filter(price__range = (lower_bound , upper_bound + 1))
+            if color and color != 'all' and color != None:
+                products = products.filter(color__in = [colors.index(color)])
+            if color and size != 'all' and size != None:
+                products = products.filter(size__in = [sizes.index(size)])
+            products = products.filter(name__contains = text)
+        else:
+            products = Product.objects.all()
 
         for product in products:
             product.discount_price = round(product.price * (1 - product.discount / 100), 2)
 
-        context.update({'products': products})
-
-        
-
+        context = self.__extract_all_data()
+        context.update({'products': products, 'query': text, 'price': price, 'size': size, 'color': color})
         return render(request, self.template_name, context)
-      
 
 class ProductDetailView(generic.DetailView):
     template_name = 'detail.html'
@@ -375,7 +260,7 @@ class ProductDetailView(generic.DetailView):
         additional_information_text = AdditionalInformation.objects.first()
         additional_information_char_1 = AdditionalInformation.objects.get().char.all()[:4]
         additional_information_char_2 = AdditionalInformation.objects.get().char.all()[4:]
-        reviews = ReviewFor.objects.get().review.all().order_by('-date_time')[:4]
+        leave_review = LeaveReview.objects.all().order_by('-date_time')[:4]
         you_may_also_like_active = YouMayAlsoLike.objects.get().product.all()[:4]
         you_may_also_like = YouMayAlsoLike.objects.get().product.all()[4:]
 
@@ -397,7 +282,7 @@ class ProductDetailView(generic.DetailView):
             'additional_information_text': additional_information_text,
             'additional_information_char_1': additional_information_char_1,
             'additional_information_char_2': additional_information_char_2,
-            'reviews': reviews,
+            'leave_review': leave_review,
             'you_may_also_like_active': you_may_also_like_active,
             'you_may_also_like': you_may_also_like,
         }
@@ -437,11 +322,7 @@ class ShopPageLatestListView(generic.ListView):
         categories = Category.objects.all()[1:]
         sub_categories_dresses = SubCategory.objects.all()[:3]
         sub_categories = SubCategory.objects.all()
-        products = Product.objects.all().order_by('-date_time')       
         
-        for product in products:
-            product.discount_price = round(product.price * (1 - product.discount / 100), 2)
-
 
 
         context = {
@@ -449,76 +330,38 @@ class ShopPageLatestListView(generic.ListView):
             'categories': categories,
             'sub_categories_dresses': sub_categories_dresses,
             'sub_categories': sub_categories,
-            'products': products,
         }
 
         return context
 
     def get(self, request):
+        text = request.GET.get('query', '')
+        price = request.GET.get('price')
+        color = request.GET.get('color')
+        size = request.GET.get('size')
 
-        context = self.__extract_all_data()
+        sizes = ['all' , 'XS', 'S', 'M', 'L', 'XL']
+        colors = ['all'  , 'White', 'Black', 'Red', 'Green', 'Blue']
+        
+        if price or color or size or text:
+            products = Product.objects.filter().order_by(-'date_time')
 
-        return render(request, self.template_name, context)
-
-    def post(self, request):
-
-        context = self.__extract_all_data()
-
-        post = request.POST
-        price = post.get('price')
-        color = post.get('color')
-        size = post.get('size')
-        products = Product.objects.all()
-        # if price != 'all':
-        #     products = Product.objects
-
-        # if price == 'all':
-        #     products = Product.objects.all().order_by('-date_time') 
-        # if price == '0-100':
-        #     products = Product.objects.filter(price__range=(0, 101)).order_by('-date_time') 
-        # if price == '100-200':
-        #     products = Product.objects.filter(price__range=(101, 201)).order_by('-date_time') 
-        # if price == '200-300':
-        #     products = Product.objects.filter(price__range=(201, 301)).order_by('-date_time') 
-        # if price == '300-400':
-        #     products = Product.objects.filter(price__range=(301, 401)).order_by('-date_time') 
-        # if price == '400-500':
-        #     products = Product.objects.filter(price__range=(401, 501)).order_by('-date_time') 
-
-        if color == 'all':
+            if price != 'all' and price != None:
+                lower_bound , upper_bound = tuple(map(int, price.split('-')))
+                products = products.filter(price__range = (lower_bound , upper_bound + 1)).order_by(-'date_time')
+            if color and color != 'all' and color != None:
+                products = products.filter(color__in = [colors.index(color)]).order_by(-'date_time')
+            if color and size != 'all' and size != None:
+                products = products.filter(size__in = [sizes.index(size)]).order_by(-'date_time')
+            products = products.filter(name__contains = text)
+        else:
             products = Product.objects.all()
-        if color == 'White':
-            products = Product.objects.filter(color__in=[1]).order_by('-date_time') 
-        if color == 'Black':
-            products = Product.objects.filter(color__in=[2]).order_by('-date_time') 
-        if color == 'Red':
-            products = Product.objects.filter(color__in=[3]).order_by('-date_time') 
-        if color == 'Green':
-            products = Product.objects.filter(color__in=[4]).order_by('-date_time') 
-        if color == 'Blue':
-            products = Product.objects.filter(color__in=[5]).order_by('-date_time') 
-
-        if size == 'all':
-            products = Product.objects.all()
-        if size == 'XS':
-            products = Product.objects.filter(size__in=[1]).order_by('-date_time') 
-        if size == 'S':
-            products = Product.objects.filter(size__in=[2]).order_by('-date_time') 
-        if size == 'M':
-            products = Product.objects.filter(size__in=[3]).order_by('-date_time') 
-        if size == 'L':
-            products = Product.objects.filter(size__in=[4]).order_by('-date_time') 
-        if size == 'XL':
-            products = Product.objects.filter(size__in=[5]).order_by('-date_time') 
-
 
         for product in products:
             product.discount_price = round(product.price * (1 - product.discount / 100), 2)
 
-        context.update({'products': products})
-
-        
-
+        context = self.__extract_all_data()
+        context.update({'products': products, 'query': text, 'price': price, 'size': size, 'color': color})
         return render(request, self.template_name, context)
       
 

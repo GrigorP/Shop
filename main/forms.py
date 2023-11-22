@@ -1,9 +1,16 @@
-from django.forms import ModelForm
+from django import forms
 from .models import (
     StayUpdated, BillingAddress,
     ShippingAddress, ContactUs,
-    NewsLetter, LeaveReview
+    NewsLetter, LeaveReview , Search
     )
+from django.forms import ModelForm
+
+
+
+class SearchForm(forms.Form):
+    query = forms.CharField()
+          
 
 class StayUpdatedForm(ModelForm):
     class Meta:
