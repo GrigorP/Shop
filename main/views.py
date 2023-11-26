@@ -245,7 +245,14 @@ class ShopPageListView(generic.ListView):
             product.discount_price = round(product.price * (1 - product.discount / 100), 2)
 
         context = self.__extract_all_data()
-        context.update({'products': products, 'query': text, 'price': price, 'size': size, 'color': color})
+        context.update({
+                'products': products,
+                'query': text,
+                'price': price,
+                'size': size,
+                'color': color ,
+            })
+
         return render(request, self.template_name, context)
 
 class ProductDetailView(generic.DetailView):
@@ -261,8 +268,10 @@ class ProductDetailView(generic.DetailView):
         additional_information_char_1 = AdditionalInformation.objects.get().char.all()[:4]
         additional_information_char_2 = AdditionalInformation.objects.get().char.all()[4:]
         leave_review = LeaveReview.objects.all().order_by('-date_time')[:4]
+        review = LeaveReview.objects.filter(product__id = id).order_by('-date_time')
         you_may_also_like_active = YouMayAlsoLike.objects.get().product.all()[:4]
         you_may_also_like = YouMayAlsoLike.objects.get().product.all()[4:]
+        
 
         product = Product.objects.get(pk=id)
         product.discount_price = round(product.price * (1 - product.discount / 100), 2)
@@ -283,6 +292,7 @@ class ProductDetailView(generic.DetailView):
             'additional_information_char_1': additional_information_char_1,
             'additional_information_char_2': additional_information_char_2,
             'leave_review': leave_review,
+            'review': review,
             'you_may_also_like_active': you_may_also_like_active,
             'you_may_also_like': you_may_also_like,
         }
@@ -294,6 +304,11 @@ class ProductDetailView(generic.DetailView):
     def get(self, request, id):
 
         context = self.__extract_all_data(id)
+
+        rating = request.GET.get('rating')
+
+        context.update({'rating': rating, })
+
 
         return render(request, self.template_name, context)
     

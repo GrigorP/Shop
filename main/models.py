@@ -192,10 +192,12 @@ class AdditionalInformation(models.Model):
         verbose_name_plural = 'Additional Information'
     
 class LeaveReview(models.Model):
+    product = models.ForeignKey(Product , on_delete=models.CASCADE, related_name='prodreview' , null=True)
     review = models.TextField('Review')
     name = models.CharField('Name', max_length=254)
     email = models.EmailField('Email')
     date_time = models.DateTimeField('Date Time', auto_now=True)
+    rating = models.IntegerField('Rating', null=True)
 
     def __str__(self) -> str:
         return self.email
